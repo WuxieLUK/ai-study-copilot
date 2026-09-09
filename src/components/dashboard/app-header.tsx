@@ -34,6 +34,12 @@ export function AppHeader({ email }: AppHeaderProps) {
           >
             Documents
           </Link>
+          <Link
+            href="/tutor"
+            className="rounded-lg px-3 py-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Tutor
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
