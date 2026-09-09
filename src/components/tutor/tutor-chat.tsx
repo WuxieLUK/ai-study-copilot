@@ -195,11 +195,15 @@ export function TutorChat() {
             aria-label="Send question"
             className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isAsking ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <Send className="h-4 w-4" aria-hidden />
-            )}
+            {/* Stable children — CSS-visible spinner avoids DOM churn mid-disabled. */}
+            <Loader2
+              className={`h-4 w-4 animate-spin ${isAsking ? "" : "hidden"}`}
+              aria-hidden
+            />
+            <Send
+              className={`h-4 w-4 ${isAsking ? "hidden" : ""}`}
+              aria-hidden
+            />
           </button>
         </div>
         <p className="mt-1.5 px-1 text-[11px] text-muted-foreground">

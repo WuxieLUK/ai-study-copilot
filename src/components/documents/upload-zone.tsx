@@ -246,12 +246,18 @@ export function UploadZone() {
             disabled={busy !== null}
             className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-            {busy === "uploading"
-              ? "Uploading…"
-              : busy === "processing"
-                ? "Processing…"
-                : "Upload"}
+            {/* Stable children — CSS-visible spinner avoids DOM churn mid-disabled. */}
+            <Loader2
+              className={`h-4 w-4 animate-spin ${busy ? "" : "hidden"}`}
+              aria-hidden
+            />
+            <span>
+              {busy === "uploading"
+                ? "Uploading…"
+                : busy === "processing"
+                  ? "Processing…"
+                  : "Upload"}
+            </span>
           </button>
         </div>
       )}

@@ -142,11 +142,15 @@ export function DocumentList({ documents }: DocumentListProps) {
                   aria-label={`Reprocess ${doc.filename}`}
                   title="Retry processing"
                 >
-                  {processingId === doc.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                  ) : (
-                    <RotateCw className="h-4 w-4" aria-hidden />
-                  )}
+                  {/* Stable children — CSS-visible spinner avoids DOM churn. */}
+                  <Loader2
+                    className={`h-4 w-4 animate-spin ${processingId === doc.id ? "" : "hidden"}`}
+                    aria-hidden
+                  />
+                  <RotateCw
+                    className={`h-4 w-4 ${processingId === doc.id ? "hidden" : ""}`}
+                    aria-hidden
+                  />
                 </button>
               )}
               <button
@@ -156,11 +160,15 @@ export function DocumentList({ documents }: DocumentListProps) {
                 className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-950/40"
                 aria-label={`Delete ${doc.filename}`}
               >
-                {isDeleting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                ) : (
-                  <Trash2 className="h-4 w-4" aria-hidden />
-                )}
+                {/* Stable children — CSS-visible spinner avoids DOM churn. */}
+                <Loader2
+                  className={`h-4 w-4 animate-spin ${isDeleting ? "" : "hidden"}`}
+                  aria-hidden
+                />
+                <Trash2
+                  className={`h-4 w-4 ${isDeleting ? "hidden" : ""}`}
+                  aria-hidden
+                />
               </button>
             </li>
           );

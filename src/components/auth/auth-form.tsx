@@ -105,14 +105,25 @@ export function AuthForm({ mode, next, banner }: AuthFormProps) {
           disabled={isPending}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isPending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-          {isPending
-            ? isLogin
-              ? "Signing in…"
-              : "Creating account…"
-            : isLogin
-              ? "Sign in"
-              : "Create account"}
+          {/*
+           * Keep the children structurally stable across the pending toggle:
+           * mounting/unmounting the icon while the button becomes `disabled`
+           * can race the browser and throw "insertBefore … not a child".
+           * The icon stays mounted and is shown/hidden via CSS only.
+           */}
+          <Loader2
+            className={`h-4 w-4 animate-spin ${isPending ? "" : "hidden"}`}
+            aria-hidden
+          />
+          <span>
+            {isPending
+              ? isLogin
+                ? "Signing in…"
+                : "Creating account…"
+              : isLogin
+                ? "Sign in"
+                : "Create account"}
+          </span>
         </button>
       </form>
 
