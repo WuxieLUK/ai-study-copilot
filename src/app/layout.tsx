@@ -22,6 +22,12 @@ export const metadata: Metadata = {
 };
 
 /*
+ * Sets `.dark` on <html> before first paint (respects saved preference,
+ * falls back to the OS setting). Kept tiny and dependency-free.
+ */
+const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("theme");var d=s? s==="dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;if(d)document.documentElement.classList.add("dark");}catch(e){}})();`;
+
+/*
  * Root layout: applies fonts, global styles and app metadata.
  * Route groups ((marketing) / (auth) / (dashboard)) render inside <body>.
  */
@@ -35,7 +41,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {children}
+      </body>
     </html>
   );
 }

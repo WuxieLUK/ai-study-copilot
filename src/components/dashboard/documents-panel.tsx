@@ -1,40 +1,10 @@
-import { FileText, File as FileMd, FileCode2, Inbox } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Inbox } from "lucide-react";
 
+import { FILE_TYPE_ICONS, STATUS_META } from "@/components/documents/meta";
+import { Panel } from "@/components/dashboard/panel";
 import type { DashboardDocument } from "@/lib/db/types";
 import { formatRelativeTime } from "@/lib/utils/format";
-import { Panel } from "@/components/dashboard/panel";
-
-const FILE_ICONS = {
-  pdf: FileText,
-  md: FileMd,
-  txt: FileCode2,
-} as const;
-
-const STATUS_STYLES: Record<
-  DashboardDocument["status"],
-  { label: string; className: string }
-> = {
-  pending: {
-    label: "Queued",
-    className:
-      "bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-300",
-  },
-  processing: {
-    label: "Processing",
-    className:
-      "bg-sky-50 text-sky-700 ring-sky-600/20 dark:bg-sky-950/50 dark:text-sky-300",
-  },
-  ready: {
-    label: "Ready",
-    className:
-      "bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-300",
-  },
-  error: {
-    label: "Failed",
-    className:
-      "bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-300",
-  },
-};
 
 export function DocumentsPanel({
   documents,
@@ -47,7 +17,7 @@ export function DocumentsPanel({
     <Panel
       title="Recent documents"
       description={hasDocuments ? "Your latest uploads" : undefined}
-      icon={FileText}
+      icon={FILE_TYPE_ICONS.pdf}
     >
       {!hasDocuments ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border px-6 py-10 text-center">
@@ -61,12 +31,22 @@ export function DocumentsPanel({
             Upload a PDF, Markdown file or notes and your copilot will turn it
             into summaries, quizzes and a personal tutor.
           </p>
+          <Link
+            href="/documents"
+            className="group mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            Upload documents
+            <ArrowRight
+              className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
         </div>
       ) : (
         <ul className="divide-y divide-border">
           {documents.map((doc) => {
-            const Icon = FILE_ICONS[doc.file_type] ?? FileText;
-            const status = STATUS_STYLES[doc.status];
+            const Icon = FILE_TYPE_ICONS[doc.file_type] ?? FILE_TYPE_ICONS.txt;
+            const status = STATUS_META[doc.status];
             return (
               <li
                 key={doc.id}
@@ -84,7 +64,7 @@ export function DocumentsPanel({
                   </p>
                 </div>
                 <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${status.className}`}
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${status.badge}`}
                 >
                   {status.label}
                 </span>
