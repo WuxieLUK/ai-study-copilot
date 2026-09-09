@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/dashboard/app-header";
 import { SupabaseSetupNotice } from "@/components/shared/supabase-setup-notice";
 import { isSupabaseConfigured } from "@/lib/env/client";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -16,10 +16,9 @@ export default async function DashboardLayout({
   let email: string | undefined;
 
   if (isSupabaseConfigured) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // getUser() is memoized per request via React `cache`, so the proxy,
+    // layout and page perform a single auth round-trip between them.
+    const user = await getCurrentUser();
 
     // Proxy already guards this, but never trust a single layer.
     if (!user) {

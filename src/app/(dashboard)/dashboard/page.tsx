@@ -1,66 +1,52 @@
-import { BookOpen, Sparkles, FileText, Target } from "lucide-react";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-/**
- * Dashboard shell (Phase 2). Widgets for documents / progress / scores /
- * recommendations land here in Phase 3 and beyond.
- */
-export default function DashboardPage() {
+import { DocumentsPanel } from "@/components/dashboard/documents-panel";
+import { ProgressPanel } from "@/components/dashboard/progress-panel";
+import { QuizPanel } from "@/components/dashboard/quiz-panel";
+import { RecommendationsPanel } from "@/components/dashboard/recommendations-panel";
+import { getCurrentUser } from "@/lib/auth/session";
+import { getDashboardSnapshot } from "@/lib/db/queries";
+
+export const metadata: Metadata = { title: "Dashboard" };
+
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+
+  // Layout already guards this route; keep the page self-sufficient.
+  if (!user) {
+    redirect("/login");
+  }
+
+  const snapshot = await getDashboardSnapshot(user.id);
+  const firstName = user.email?.split("@")[0] ?? "there";
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-          Study Dashboard
+          Welcome back, {firstName}
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Upload materials to start — your copilot will build summaries,
-          quizzes and a tutor around them.
+          Here&apos;s what&apos;s happening across your studies today.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          icon={FileText}
-          label="Documents"
-          hint="Upload a PDF, Markdown or TXT to begin"
-        />
-        <StatCard
-          icon={BookOpen}
-          label="Study progress"
-          hint="Tracked once you start learning"
-        />
-        <StatCard
-          icon={Target}
-          label="Quiz scores"
-          hint="Auto-generated quizzes land here"
-        />
-        <StatCard
-          icon={Sparkles}
-          label="Recommended topics"
-          hint="Personalized from your performance"
-        />
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="space-y-5 lg:col-span-2">
+          <DocumentsPanel documents={snapshot.recentDocuments} />
+          <RecommendationsPanel />
+        </div>
+        <div className="space-y-5">
+          <ProgressPanel
+            readyDocuments={snapshot.readyDocuments}
+            inFlightDocuments={snapshot.inFlightDocuments}
+            failedDocuments={snapshot.failedDocuments}
+            totalDocuments={snapshot.totalDocuments}
+          />
+          <QuizPanel />
+        </div>
       </div>
-    </div>
-  );
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  hint,
-}: {
-  icon: typeof FileText;
-  label: string;
-  hint: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400">
-        <Icon className="h-4.5 w-4.5" aria-hidden />
-      </span>
-      <p className="mt-3 text-sm font-medium text-foreground">{label}</p>
-      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-        {hint}
-      </p>
     </div>
   );
 }
