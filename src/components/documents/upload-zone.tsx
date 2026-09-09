@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   Loader2,
+  Sparkles,
   Trash2,
   UploadCloud,
   XCircle,
@@ -17,6 +18,8 @@ import {
   sanitizeStorageName,
   validateUploadFile,
 } from "@/lib/upload/validate";
+
+type BusyPhase = null | "uploading" | "processing";
 
 /** Map common storage errors to actionable guidance. */
 function describeUploadError(message: string): string {
@@ -37,8 +40,8 @@ export function UploadZone() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState<BusyPhase>(null);
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState<string | null>(null);
 
   const pickFile = useCallback((candidate: File | null | undefined) => {
@@ -55,58 +58,91 @@ export function UploadZone() {
     setFile(candidate);
   }, []);
 
+  /** Asks the processing endpoint to index the freshly stored document. */
+  async function processDocument(documentId: string, filename: string) {
+    try {
+      const response = await fetch(`/api/documents/${documentId}/process`, {
+        method: "POST",
+      });
+      const data = (await response.json().catch(() => null)) as {
+        status?: string;
+        message?: string;
+        chunkCount?: number;
+      } | null;
+
+      if (response.ok && data?.status === "ready") {
+        setDone(
+          `${filename} is indexed (${data.chunkCount ?? "?"} chunks) — summaries, quizzes and the tutor can use it now.`,
+        );
+      } else {
+        setError(
+          data?.message ??
+            "The file uploaded, but processing failed. Check the document row and retry.",
+        );
+      }
+    } catch {
+      setError(
+        "The file uploaded, but processing could not start. You can retry it from the list.",
+      );
+    }
+  }
+
   async function runUpload() {
-    if (!file || uploading) return;
-    setUploading(true);
+    if (!file || busy) return;
     setError(null);
     setDone(null);
+    const chosenFile = file;
+
+    const supabase = createClient();
+    if (!supabase) {
+      setError(
+        "Supabase is not configured. Add the NEXT_PUBLIC_SUPABASE_* variables to your environment to upload.",
+      );
+      return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setError("Your session expired — please sign in again.");
+      return;
+    }
+
+    const fileType = detectFileType(chosenFile.name);
+    if (!fileType) {
+      setError("Unsupported file type.");
+      return;
+    }
+
     try {
-      const supabase = createClient();
-      if (!supabase) {
-        setError(
-          "Supabase is not configured. Add the NEXT_PUBLIC_SUPABASE_* variables to your environment to upload.",
-        );
-        return;
-      }
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Your session expired — please sign in again.");
-        return;
-      }
-
-      const fileType = detectFileType(file.name);
-      if (!fileType) {
-        setError("Unsupported file type.");
-        return;
-      }
-
       // Unique key under the caller's own storage folder (RLS-enforced).
-      const storagePath = `${user.id}/${crypto.randomUUID()}-${sanitizeStorageName(file.name)}`;
+      const storagePath = `${user.id}/${crypto.randomUUID()}-${sanitizeStorageName(chosenFile.name)}`;
 
+      setBusy("uploading");
       const { error: uploadError } = await supabase.storage
         .from("documents")
-        .upload(storagePath, file, {
+        .upload(storagePath, chosenFile, {
           cacheControl: "3600",
-          contentType: file.type || "application/octet-stream",
+          contentType: chosenFile.type || "application/octet-stream",
         });
       if (uploadError) {
         setError(describeUploadError(uploadError.message));
         return;
       }
 
-      const { error: insertError } = await supabase
+      const { data: inserted, error: insertError } = await supabase
         .from("documents")
         .insert({
           user_id: user.id,
-          filename: file.name,
+          filename: chosenFile.name,
           storage_path: storagePath,
           file_type: fileType,
-          size_bytes: file.size,
+          size_bytes: chosenFile.size,
           status: "pending",
-        });
+        })
+        .select("id")
+        .single();
 
       if (insertError) {
         // Roll the orphan object back so we never leak files without rows.
@@ -116,12 +152,18 @@ export function UploadZone() {
       }
 
       setFile(null);
-      setDone(file.name);
+      const documentId = inserted?.id as string | undefined;
+      if (documentId) {
+        setBusy("processing");
+        await processDocument(documentId, chosenFile.name);
+      } else {
+        setDone(`${chosenFile.name} uploaded.`);
+      }
       router.refresh();
     } catch {
       setError("Upload failed unexpectedly. Please try again.");
     } finally {
-      setUploading(false);
+      setBusy(null);
     }
   }
 
@@ -192,7 +234,7 @@ export function UploadZone() {
               setFile(null);
               setError(null);
             }}
-            disabled={uploading}
+            disabled={busy !== null}
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
             aria-label="Cancel selection"
           >
@@ -201,14 +243,28 @@ export function UploadZone() {
           <button
             type="button"
             onClick={runUpload}
-            disabled={uploading}
+            disabled={busy !== null}
             className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {uploading && (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            )}
-            {uploading ? "Uploading…" : "Upload"}
+            {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+            {busy === "uploading"
+              ? "Uploading…"
+              : busy === "processing"
+                ? "Processing…"
+                : "Upload"}
           </button>
+        </div>
+      )}
+
+      {busy === "processing" && !error && (
+        <div
+          role="status"
+          className="flex items-start gap-2 rounded-xl border border-sky-500/40 bg-sky-50 px-4 py-3 text-sm text-sky-800 dark:border-sky-500/30 dark:bg-sky-950/40 dark:text-sky-300"
+        >
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 animate-pulse" aria-hidden />
+          <span>
+            Indexing into your knowledge base — this can take a few seconds.
+          </span>
         </div>
       )}
 
@@ -228,10 +284,7 @@ export function UploadZone() {
           className="flex items-start gap-2 rounded-xl border border-emerald-500/40 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-300"
         >
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-          <span>
-            <span className="font-medium">{done}</span> uploaded — it will be
-            processed into your knowledge base shortly.
-          </span>
+          <span>{done}</span>
         </div>
       )}
     </div>

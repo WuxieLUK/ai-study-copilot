@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Inbox, Loader2, Trash2, XCircle } from "lucide-react";
+import { Inbox, Loader2, RotateCw, Trash2, XCircle } from "lucide-react";
 
 import { FILE_TYPE_ICONS, STATUS_META } from "@/components/documents/meta";
 import type { ListDocument } from "@/lib/db/types";
@@ -16,6 +16,7 @@ type DocumentListProps = {
 export function DocumentList({ documents }: DocumentListProps) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleDelete(doc: ListDocument) {
@@ -43,6 +44,30 @@ export function DocumentList({ documents }: DocumentListProps) {
       setError("Delete failed unexpectedly. Please try again.");
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  /** Retries RAG processing for a failed / queued document. */
+  async function handleReprocess(doc: ListDocument) {
+    if (processingId) return;
+    setProcessingId(doc.id);
+    setError(null);
+    try {
+      const response = await fetch(`/api/documents/${doc.id}/process`, {
+        method: "POST",
+      });
+      const data = (await response.json().catch(() => null)) as {
+        status?: string;
+        message?: string;
+      } | null;
+      if (!response.ok) {
+        setError(data?.message ?? "Processing failed.");
+      }
+      router.refresh();
+    } catch {
+      setError("Processing failed unexpectedly. Please try again.");
+    } finally {
+      setProcessingId(null);
     }
   }
 
@@ -108,10 +133,26 @@ export function DocumentList({ documents }: DocumentListProps) {
               >
                 {status.label}
               </span>
+              {(doc.status === "error" || doc.status === "pending") && (
+                <button
+                  type="button"
+                  onClick={() => handleReprocess(doc)}
+                  disabled={processingId !== null}
+                  className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-brand-50 hover:text-brand-600 disabled:opacity-50 dark:hover:bg-brand-950/40"
+                  aria-label={`Reprocess ${doc.filename}`}
+                  title="Retry processing"
+                >
+                  {processingId === doc.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  ) : (
+                    <RotateCw className="h-4 w-4" aria-hidden />
+                  )}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => handleDelete(doc)}
-                disabled={isDeleting}
+                disabled={isDeleting || processingId === doc.id}
                 className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-950/40"
                 aria-label={`Delete ${doc.filename}`}
               >
