@@ -98,3 +98,65 @@ export async function getDocuments(
     return [];
   }
 }
+
+type ReadyDocument = { id: string; filename: string };
+
+/** Documents that finished processing — pickable as quiz sources. */
+export async function getReadyDocuments(userId: string): Promise<ReadyDocument[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("documents")
+      .select("id, filename")
+      .eq("user_id", userId)
+      .eq("status", "ready")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (error) {
+      console.error("[documents] failed to load ready documents:", error.message);
+      return [];
+    }
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      filename: row.filename as string,
+    }));
+  } catch (err) {
+    console.error("[documents] unexpected error:", err);
+    return [];
+  }
+}
+
+/**
+ * Samples indexed chunk text (with the owning filename) for quiz generation.
+ * Caller pre-filters document ids to the user's ready documents; RLS keeps
+ * the query scoped to the signed-in user regardless.
+ */
+export async function getQuizSourceContext(
+  documentIds: string[],
+  maxChunks = 40,
+): Promise<string> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("document_chunks")
+      .select("document_id, content, documents!inner(filename)")
+      .in("document_id", documentIds)
+      .order("chunk_index")
+      .limit(maxChunks);
+
+    if (error) {
+      console.error("[quiz] failed to load source chunks:", error.message);
+      return "";
+    }
+    return (data ?? [])
+      .map(
+        (row) =>
+          `--- ${(row.documents as { filename?: string } | null)?.filename ?? "document"} ---\n${row.content as string}`,
+      )
+      .join("\n\n");
+  } catch (err) {
+    console.error("[quiz] unexpected error loading context:", err);
+    return "";
+  }
+}
