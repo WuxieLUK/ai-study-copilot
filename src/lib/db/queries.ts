@@ -160,3 +160,95 @@ export async function getQuizSourceContext(
     return "";
   }
 }
+
+export type QuizSessionSummary = {
+  id: string;
+  title: string;
+  score_pct: number;
+  question_count: number;
+  correct_count: number;
+  weak_topics: { topic: string; missed: number }[];
+  created_at: string;
+};
+
+type QuizResponseRow = {
+  topic: string;
+  correct: boolean;
+};
+
+/** Quiz history summary (no per-question payload) for dashboards. */
+export async function getQuizSessionsSummary(
+  userId: string,
+  limit = 20,
+): Promise<QuizSessionSummary[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("quiz_sessions")
+      .select(
+        "id, title, score_pct, question_count, correct_count, weak_topics, created_at",
+      )
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("[quiz] failed to load sessions:", error.message);
+      return [];
+    }
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      title: row.title as string,
+      score_pct: row.score_pct as number,
+      question_count: row.question_count as number,
+      correct_count: row.correct_count as number,
+      weak_topics: ((row.weak_topics ?? []) as { topic?: string; missed?: number }[]).map(
+        (w) => ({ topic: w.topic ?? "General", missed: Number(w.missed) || 0 }),
+      ),
+      created_at: row.created_at as string,
+    }));
+  } catch (err) {
+    console.error("[quiz] unexpected error loading sessions:", err);
+    return [];
+  }
+}
+
+/** Quiz history including per-question responses, for analytics. */
+export async function getQuizSessionDetails(
+  userId: string,
+  limit = 50,
+): Promise<(QuizSessionSummary & { responses: QuizResponseRow[] })[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("quiz_sessions")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("[quiz] failed to load session details:", error.message);
+      return [];
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      title: row.title as string,
+      score_pct: row.score_pct as number,
+      question_count: row.question_count as number,
+      correct_count: row.correct_count as number,
+      weak_topics: ((row.weak_topics ?? []) as { topic?: string; missed?: number }[]).map(
+        (w) => ({ topic: w.topic ?? "General", missed: Number(w.missed) || 0 }),
+      ),
+      created_at: row.created_at as string,
+      responses: ((row.responses ?? []) as QuizResponseRow[]).map((r) => ({
+        topic: r.topic ?? "General",
+        correct: Boolean(r.correct),
+      })),
+    }));
+  } catch (err) {
+    console.error("[quiz] unexpected error loading session details:", err);
+    return [];
+  }
+}

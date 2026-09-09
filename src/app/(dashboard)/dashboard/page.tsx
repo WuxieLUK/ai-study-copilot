@@ -6,8 +6,12 @@ import { ProgressPanel } from "@/components/dashboard/progress-panel";
 import { QuizPanel } from "@/components/dashboard/quiz-panel";
 import { RecommendationsPanel } from "@/components/dashboard/recommendations-panel";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getDashboardSnapshot } from "@/lib/db/queries";
+import {
+  getDashboardSnapshot,
+  getQuizSessionsSummary,
+} from "@/lib/db/queries";
 import { isSupabaseConfigured } from "@/lib/env/client";
+import { aggregateWeakTopicsAcrossSessions } from "@/lib/analytics/insights";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -24,7 +28,11 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const snapshot = await getDashboardSnapshot(user.id);
+  const [snapshot, quizSessions] = await Promise.all([
+    getDashboardSnapshot(user.id),
+    getQuizSessionsSummary(user.id, 6),
+  ]);
+  const weakTopics = aggregateWeakTopicsAcrossSessions(quizSessions).slice(0, 5);
   const firstName = user.email?.split("@")[0] ?? "there";
 
   return (
@@ -41,7 +49,7 @@ export default async function DashboardPage() {
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="space-y-5 lg:col-span-2">
           <DocumentsPanel documents={snapshot.recentDocuments} />
-          <RecommendationsPanel />
+          <RecommendationsPanel weakTopics={weakTopics} />
         </div>
         <div className="space-y-5">
           <ProgressPanel
@@ -50,7 +58,7 @@ export default async function DashboardPage() {
             failedDocuments={snapshot.failedDocuments}
             totalDocuments={snapshot.totalDocuments}
           />
-          <QuizPanel />
+          <QuizPanel sessions={quizSessions.slice(0, 5)} />
         </div>
       </div>
     </div>

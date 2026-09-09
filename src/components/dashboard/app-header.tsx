@@ -46,6 +46,12 @@ export function AppHeader({ email }: AppHeaderProps) {
           >
             Quiz
           </Link>
+          <Link
+            href="/insights"
+            className="rounded-lg px-3 py-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Insights
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
