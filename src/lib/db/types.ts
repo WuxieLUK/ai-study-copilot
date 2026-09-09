@@ -11,6 +11,8 @@ export type DocumentRow = {
   id: string;
   user_id: string;
   filename: string;
+  /** Object key inside the private `documents` storage bucket. */
+  storage_path: string;
   file_type: DocumentFileType;
   size_bytes: number;
   status: DocumentStatus;
@@ -22,6 +24,18 @@ export type DocumentRow = {
 export type DashboardDocument = Pick<
   DocumentRow,
   "id" | "filename" | "file_type" | "status" | "created_at"
+>;
+
+export type ListDocument = Pick<
+  DocumentRow,
+  | "id"
+  | "filename"
+  | "storage_path"
+  | "file_type"
+  | "size_bytes"
+  | "status"
+  | "error"
+  | "created_at"
 >;
 
 /** Everything the dashboard renders in one fetch-friendly snapshot. */

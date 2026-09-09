@@ -21,6 +21,21 @@ export function AppHeader({ email }: AppHeaderProps) {
           <span className="hidden sm:inline">AI Study Copilot</span>
         </Link>
 
+        <nav className="flex items-center gap-1 text-sm font-medium">
+          <Link
+            href="/dashboard"
+            className="rounded-lg px-3 py-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Dashboard
+          </Link>
+          <Link
+            href="/documents"
+            className="rounded-lg px-3 py-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Documents
+          </Link>
+        </nav>
+
         <div className="flex items-center gap-2">
           <span
             className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline"

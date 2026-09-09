@@ -1,24 +1,27 @@
-import type { DashboardSnapshot } from "@/lib/db/types";
+import type {
+  DashboardDocument,
+  DashboardSnapshot,
+  DocumentRow,
+  ListDocument,
+} from "@/lib/db/types";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Loads the dashboard snapshot for a user.
- *
- * Never throws: if the table is missing or the query fails (e.g. before the
- * migration has been applied) we degrade to an empty snapshot so the UI can
- * render its empty/error guidance instead of crashing.
+ * Query helpers. Never throw: on failure (e.g. migration not applied yet)
+ * they degrade to empty results so pages can render empty/error guidance.
  */
+
+const EMPTY_SNAPSHOT: DashboardSnapshot = {
+  recentDocuments: [],
+  totalDocuments: 0,
+  readyDocuments: 0,
+  inFlightDocuments: 0,
+  failedDocuments: 0,
+};
+
 export async function getDashboardSnapshot(
   userId: string,
 ): Promise<DashboardSnapshot> {
-  const empty: DashboardSnapshot = {
-    recentDocuments: [],
-    totalDocuments: 0,
-    readyDocuments: 0,
-    inFlightDocuments: 0,
-    failedDocuments: 0,
-  };
-
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -30,16 +33,19 @@ export async function getDashboardSnapshot(
 
     if (error) {
       console.error("[dashboard] failed to load documents:", error.message);
-      return empty;
+      return EMPTY_SNAPSHOT;
     }
 
-    const documents = (data ?? []).map((row) => ({
-      id: row.id as string,
-      filename: row.filename as string,
-      file_type: row.file_type as DashboardSnapshot["recentDocuments"][number]["file_type"],
-      status: row.status as DashboardSnapshot["recentDocuments"][number]["status"],
-      created_at: row.created_at as string,
-    }));
+    const documents = (data ?? []).map(
+      (row) =>
+        ({
+          id: row.id as string,
+          filename: row.filename as string,
+          file_type: row.file_type as DocumentRow["file_type"],
+          status: row.status as DocumentRow["status"],
+          created_at: row.created_at as string,
+        }) satisfies DashboardDocument,
+    );
 
     return {
       recentDocuments: documents,
@@ -52,6 +58,43 @@ export async function getDashboardSnapshot(
     };
   } catch (err) {
     console.error("[dashboard] unexpected error loading snapshot:", err);
-    return empty;
+    return EMPTY_SNAPSHOT;
+  }
+}
+
+/** Full document list for the /documents page (newest first). */
+export async function getDocuments(
+  userId: string,
+  limit = 100,
+): Promise<ListDocument[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("documents")
+      .select(
+        "id, filename, storage_path, file_type, size_bytes, status, error, created_at",
+      )
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("[documents] failed to load documents:", error.message);
+      return [];
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      filename: row.filename as string,
+      storage_path: row.storage_path as string,
+      file_type: row.file_type as ListDocument["file_type"],
+      size_bytes: row.size_bytes as number,
+      status: row.status as ListDocument["status"],
+      error: (row.error as string | null) ?? null,
+      created_at: row.created_at as string,
+    }));
+  } catch (err) {
+    console.error("[documents] unexpected error loading documents:", err);
+    return [];
   }
 }
