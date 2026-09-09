@@ -7,10 +7,16 @@ import { QuizPanel } from "@/components/dashboard/quiz-panel";
 import { RecommendationsPanel } from "@/components/dashboard/recommendations-panel";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getDashboardSnapshot } from "@/lib/db/queries";
+import { isSupabaseConfigured } from "@/lib/env/client";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
+  // Without Supabase the layout renders its setup notice; skip data work.
+  if (!isSupabaseConfigured) {
+    return null;
+  }
+
   const user = await getCurrentUser();
 
   // Layout already guards this route; keep the page self-sufficient.
