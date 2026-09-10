@@ -7,7 +7,7 @@ Development).
 ## 0 · Baseline (no keys)
 
 ```bash
-npm test          # expect: 9 files / 73 tests passed
+npm test          # expect: 10 files / 76 tests passed
 npm run lint      # expect: no errors / warnings
 npx tsc --noEmit  # expect: clean
 npm run dev       # http://localhost:3000
@@ -41,8 +41,15 @@ API degraded states (unauthenticated / no keys):
 
 ## 2 · Full flow (keys configured)
 
-1. **Sign up** on `/signup` (confirm email if enabled) → lands on `/dashboard`.
-2. **Upload** a sample `.md`/`.txt`/`.pdf` on `/documents` → row appears
+Use the bundled `samples/` files (`.md`, `.txt`, `.pdf`) as test material.
+
+> Tip: for local/demo use, turn **Authentication → Email → Confirm email** OFF
+> in Supabase — otherwise sign-up waits for a confirmation mail that the
+> built-in mailer only delivers to project members.
+
+1. **Sign up** on `/signup` → lands on `/dashboard`.
+2. **Upload** `samples/neural-networks-lecture-notes.pdf` (or the `.md`/`.txt`)
+   on `/documents` → row appears
    `Queued` → `Processing` → `Ready` (upload triggers indexing automatically).
 3. **Delete/retry** — delete the file (row + storage object gone); re-upload an
    intentionally broken file to see `Failed` + reason, then retry.

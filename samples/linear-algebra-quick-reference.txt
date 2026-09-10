@@ -1,0 +1,58 @@
+Linear Algebra — Quick Reference
+=================================
+
+Vectors
+-------
+A vector is an ordered list of numbers. The dot product of two vectors u and v
+measures their alignment:
+
+    u . v = sum_i u_i * v_i = |u| |v| cos(theta)
+
+If the dot product is zero the vectors are orthogonal (perpendicular). The
+norm |u| is the square root of u . u.
+
+Matrices
+--------
+A matrix A of shape (m, n) is a linear map from R^n to R^m. Matrix
+multiplication composes these maps, which is why order matters: AB is not
+generally equal to BA. The identity matrix I leaves vectors unchanged.
+
+Important quantities:
+- Transpose A^T: flip rows and columns.
+- Inverse A^-1: exists only for square, full-rank matrices; A A^-1 = I.
+- Determinant det(A): zero means the matrix is singular (not invertible) and
+  collapses volume.
+
+Linear systems
+--------------
+Solving A x = b means finding the input that produces b. If A is invertible
+the solution is unique: x = A^-1 b. If A is singular there may be no solution
+or infinitely many; least squares finds the best approximation when no exact
+solution exists.
+
+Eigenvalues and eigenvectors
+----------------------------
+An eigenvector v of A satisfies A v = lambda v: the matrix only stretches it.
+Eigenvalues reveal stability (|lambda| < 1 decays) and are central to PCA,
+where the top eigenvectors of the covariance matrix define the directions of
+maximum variance.
+
+Singular value decomposition
+----------------------------
+Any matrix can be written as A = U S V^T, where U and V are orthogonal and S
+holds the singular values. SVD generalises eigenvalues to rectangular
+matrices and powers dimensionality reduction, recommendation systems, and
+noise filtering.
+
+Rank
+----
+The rank of a matrix is the number of linearly independent rows (or columns).
+Low rank means the data lives in a lower-dimensional subspace — the key
+insight behind compression and latent-factor models.
+
+Practice checklist
+------------------
+1. Compute a dot product and decide whether two vectors are orthogonal.
+2. Determine when a 2x2 matrix is invertible using its determinant.
+3. Find eigenvalues of a 2x2 matrix by solving the characteristic polynomial.
+4. Explain in one sentence why SVD is useful for compression.

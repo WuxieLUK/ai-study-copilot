@@ -1,0 +1,209 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 11 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 3335 >>
+stream
+BT /F1 11 Tf 56 742.0 Td (Neural Networks - Lecture Notes) Tj ET
+BT /F1 11 Tf 56 727.5 Td () Tj ET
+BT /F1 11 Tf 56 713.0 Td (Course: Introduction to Machine Learning \(Lecture 4\)) Tj ET
+BT /F1 11 Tf 56 698.5 Td (Topic: Feedforward networks, training, and modern architectures) Tj ET
+BT /F1 11 Tf 56 684.0 Td () Tj ET
+BT /F1 11 Tf 56 669.5 Td (1. What is a neural network?) Tj ET
+BT /F1 11 Tf 56 655.0 Td () Tj ET
+BT /F1 11 Tf 56 640.5 Td (A neural network is a parameterised function that maps an input vector x to an) Tj ET
+BT /F1 11 Tf 56 626.0 Td (output vector y through a sequence of layers. Each layer applies a linear) Tj ET
+BT /F1 11 Tf 56 611.5 Td (transformation followed by a non-linear activation:) Tj ET
+BT /F1 11 Tf 56 597.0 Td () Tj ET
+BT /F1 11 Tf 56 582.5 Td (  z = W x + b) Tj ET
+BT /F1 11 Tf 56 568.0 Td (  a = f\(z\)) Tj ET
+BT /F1 11 Tf 56 553.5 Td () Tj ET
+BT /F1 11 Tf 56 539.0 Td (where W is a weight matrix, b is a bias vector, and f is an element-wise) Tj ET
+BT /F1 11 Tf 56 524.5 Td (activation function. A network with one hidden layer can approximate any) Tj ET
+BT /F1 11 Tf 56 510.0 Td (continuous function on a bounded domain \(universal approximation theorem\),) Tj ET
+BT /F1 11 Tf 56 495.5 Td (but depth usually buys far more representational power per parameter than) Tj ET
+BT /F1 11 Tf 56 481.0 Td (width.) Tj ET
+BT /F1 11 Tf 56 466.5 Td () Tj ET
+BT /F1 11 Tf 56 452.0 Td (The learnable parameters are exactly the entries of every W and b. Training) Tj ET
+BT /F1 11 Tf 56 437.5 Td (means finding values for these parameters that minimise a loss on the training) Tj ET
+BT /F1 11 Tf 56 423.0 Td (data while generalising to unseen data.) Tj ET
+BT /F1 11 Tf 56 408.5 Td () Tj ET
+BT /F1 11 Tf 56 394.0 Td (2. The forward pass) Tj ET
+BT /F1 11 Tf 56 379.5 Td () Tj ET
+BT /F1 11 Tf 56 365.0 Td (The forward pass evaluates the network from input to output. For a two-layer) Tj ET
+BT /F1 11 Tf 56 350.5 Td (network:) Tj ET
+BT /F1 11 Tf 56 336.0 Td () Tj ET
+BT /F1 11 Tf 56 321.5 Td (  h = f\(W1 x + b1\)) Tj ET
+BT /F1 11 Tf 56 307.0 Td (  y_hat = softmax\(W2 h + b2\)) Tj ET
+BT /F1 11 Tf 56 292.5 Td () Tj ET
+BT /F1 11 Tf 56 278.0 Td (The intermediate vectors h are called activations or hidden representations.) Tj ET
+BT /F1 11 Tf 56 263.5 Td (A useful mental model: each layer learns a new coordinate system in which the) Tj ET
+BT /F1 11 Tf 56 249.0 Td (task becomes easier - early layers detect local patterns, deeper layers) Tj ET
+BT /F1 11 Tf 56 234.5 Td (compose them into abstract concepts.) Tj ET
+BT /F1 11 Tf 56 220.0 Td () Tj ET
+BT /F1 11 Tf 56 205.5 Td (3. Activation functions) Tj ET
+BT /F1 11 Tf 56 191.0 Td () Tj ET
+BT /F1 11 Tf 56 176.5 Td (- Sigmoid: sigma\(z\) = 1 / \(1 + e^-z\). Output in \(0,1\). Saturates for large) Tj ET
+BT /F1 11 Tf 56 162.0 Td (  |z|, so gradients vanish; rarely used in hidden layers today.) Tj ET
+BT /F1 11 Tf 56 147.5 Td (- Tanh: zero-centred version of sigmoid, still saturating.) Tj ET
+BT /F1 11 Tf 56 133.0 Td (- ReLU: max\(0, z\). Cheap, sparse, and the default for most feedforward and) Tj ET
+BT /F1 11 Tf 56 118.5 Td (  convolutional networks. Dying ReLU is its main failure mode \(neurons stuck) Tj ET
+BT /F1 11 Tf 56 104.0 Td (  at zero\).) Tj ET
+BT /F1 11 Tf 56 89.5 Td (- Leaky ReLU / GELU / SiLU: smooth or leaky variants that mitigate dead units) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 6 0 R /Resources << /Font << /F1 11 0 R >> >> >>
+endobj
+6 0 obj
+<< /Length 3278 >>
+stream
+BT /F1 11 Tf 56 742.0 Td (  and improve optimisation in deep networks.) Tj ET
+BT /F1 11 Tf 56 727.5 Td (- Softmax: converts a vector of logits into a probability distribution; used) Tj ET
+BT /F1 11 Tf 56 713.0 Td (  at the output for multi-class classification.) Tj ET
+BT /F1 11 Tf 56 698.5 Td () Tj ET
+BT /F1 11 Tf 56 684.0 Td (4. Loss functions) Tj ET
+BT /F1 11 Tf 56 669.5 Td () Tj ET
+BT /F1 11 Tf 56 655.0 Td (Mean squared error is natural for regression:) Tj ET
+BT /F1 11 Tf 56 640.5 Td () Tj ET
+BT /F1 11 Tf 56 626.0 Td (  L = \(1/n\) * sum_i \(y_i - y_hat_i\)^2) Tj ET
+BT /F1 11 Tf 56 611.5 Td () Tj ET
+BT /F1 11 Tf 56 597.0 Td (Cross-entropy is the standard choice for classification:) Tj ET
+BT /F1 11 Tf 56 582.5 Td () Tj ET
+BT /F1 11 Tf 56 568.0 Td (  L = -sum_i y_i * log\(y_hat_i\)) Tj ET
+BT /F1 11 Tf 56 553.5 Td () Tj ET
+BT /F1 11 Tf 56 539.0 Td (Cross-entropy measures how surprised the model is by the true label. It pairs) Tj ET
+BT /F1 11 Tf 56 524.5 Td (with softmax for a numerically stable gradient: the derivative with respect to) Tj ET
+BT /F1 11 Tf 56 510.0 Td (the logits is simply \(y_hat - y\), which is why classification networks are so) Tj ET
+BT /F1 11 Tf 56 495.5 Td (well behaved.) Tj ET
+BT /F1 11 Tf 56 481.0 Td () Tj ET
+BT /F1 11 Tf 56 466.5 Td (5. Backpropagation) Tj ET
+BT /F1 11 Tf 56 452.0 Td () Tj ET
+BT /F1 11 Tf 56 437.5 Td (Backpropagation computes the gradient of the loss with respect to every weight) Tj ET
+BT /F1 11 Tf 56 423.0 Td (by applying the chain rule backward through the computation graph. For a) Tj ET
+BT /F1 11 Tf 56 408.5 Td (composition L = f\(g\(h\(x\)\)\):) Tj ET
+BT /F1 11 Tf 56 394.0 Td () Tj ET
+BT /F1 11 Tf 56 379.5 Td (  dL/dx = \(dL/df\) * \(df/dg\) * \(dg/dh\) * \(dh/dx\)) Tj ET
+BT /F1 11 Tf 56 365.0 Td () Tj ET
+BT /F1 11 Tf 56 350.5 Td (Each layer stores its activations from the forward pass; the backward pass) Tj ET
+BT /F1 11 Tf 56 336.0 Td (reuses them to avoid recomputation. The algorithm is exact \(not an) Tj ET
+BT /F1 11 Tf 56 321.5 Td (approximation\) and costs roughly the same as two forward passes. Autodiff) Tj ET
+BT /F1 11 Tf 56 307.0 Td (frameworks \(PyTorch, JAX\) build the graph for you, but understanding the) Tj ET
+BT /F1 11 Tf 56 292.5 Td (chain rule is essential for debugging shapes and vanishing gradients.) Tj ET
+BT /F1 11 Tf 56 278.0 Td () Tj ET
+BT /F1 11 Tf 56 263.5 Td (6. Optimisation) Tj ET
+BT /F1 11 Tf 56 249.0 Td () Tj ET
+BT /F1 11 Tf 56 234.5 Td (Gradient descent updates parameters in the direction that reduces the loss:) Tj ET
+BT /F1 11 Tf 56 220.0 Td () Tj ET
+BT /F1 11 Tf 56 205.5 Td (  theta <- theta - lr * dL/dtheta) Tj ET
+BT /F1 11 Tf 56 191.0 Td () Tj ET
+BT /F1 11 Tf 56 176.5 Td (- Stochastic gradient descent \(SGD\) estimates the gradient from a mini-batch.) Tj ET
+BT /F1 11 Tf 56 162.0 Td (  Mini-batches give noisy but unbiased estimates and make GPU parallelism) Tj ET
+BT /F1 11 Tf 56 147.5 Td (  worthwhile.) Tj ET
+BT /F1 11 Tf 56 133.0 Td (- Momentum accumulates a velocity term, smoothing noisy gradients and) Tj ET
+BT /F1 11 Tf 56 118.5 Td (  accelerating through ravines.) Tj ET
+BT /F1 11 Tf 56 104.0 Td (- Adam combines momentum with per-parameter adaptive learning rates and is a) Tj ET
+BT /F1 11 Tf 56 89.5 Td (  strong default for most tasks.) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 8 0 R /Resources << /Font << /F1 11 0 R >> >> >>
+endobj
+8 0 obj
+<< /Length 3576 >>
+stream
+BT /F1 11 Tf 56 742.0 Td (- Learning rate is the single most important hyperparameter. Too large and the) Tj ET
+BT /F1 11 Tf 56 727.5 Td (  loss diverges; too small and training stalls. Schedules \(cosine decay,) Tj ET
+BT /F1 11 Tf 56 713.0 Td (  warm-up\) usually help.) Tj ET
+BT /F1 11 Tf 56 698.5 Td () Tj ET
+BT /F1 11 Tf 56 684.0 Td (7. Regularisation) Tj ET
+BT /F1 11 Tf 56 669.5 Td () Tj ET
+BT /F1 11 Tf 56 655.0 Td (- Weight decay \(L2\) penalises large weights and shrinks the effective capacity) Tj ET
+BT /F1 11 Tf 56 640.5 Td (  of the model.) Tj ET
+BT /F1 11 Tf 56 626.0 Td (- Dropout randomly zeroes activations during training, forcing redundant and) Tj ET
+BT /F1 11 Tf 56 611.5 Td (  robust representations. Disable it at inference time.) Tj ET
+BT /F1 11 Tf 56 597.0 Td (- Early stopping halts training when validation loss stops improving.) Tj ET
+BT /F1 11 Tf 56 582.5 Td (- Data augmentation \(crops, flips, noise\) expands the effective dataset.) Tj ET
+BT /F1 11 Tf 56 568.0 Td (- Batch normalisation stabilises activations and often allows higher learning) Tj ET
+BT /F1 11 Tf 56 553.5 Td (  rates.) Tj ET
+BT /F1 11 Tf 56 539.0 Td () Tj ET
+BT /F1 11 Tf 56 524.5 Td (8. Modern architectures) Tj ET
+BT /F1 11 Tf 56 510.0 Td () Tj ET
+BT /F1 11 Tf 56 495.5 Td (- Convolutional networks \(CNNs\) exploit spatial locality with shared filters;) Tj ET
+BT /F1 11 Tf 56 481.0 Td (  pooling reduces resolution. They dominate vision.) Tj ET
+BT /F1 11 Tf 56 466.5 Td (- Recurrent networks \(RNNs, LSTMs\) process sequences with a hidden state, but) Tj ET
+BT /F1 11 Tf 56 452.0 Td (  suffer from vanishing gradients over long spans.) Tj ET
+BT /F1 11 Tf 56 437.5 Td (- Transformers replace recurrence with self-attention, allowing every position) Tj ET
+BT /F1 11 Tf 56 423.0 Td (  to attend to every other in parallel. Attention weights are learned) Tj ET
+BT /F1 11 Tf 56 408.5 Td (  similarities; multi-head attention lets the model attend to several) Tj ET
+BT /F1 11 Tf 56 394.0 Td (  relationships at once.) Tj ET
+BT /F1 11 Tf 56 379.5 Td () Tj ET
+BT /F1 11 Tf 56 365.0 Td (9. Common pitfalls) Tj ET
+BT /F1 11 Tf 56 350.5 Td () Tj ET
+BT /F1 11 Tf 56 336.0 Td (- Overfitting: training loss falls while validation loss rises. Fix with more) Tj ET
+BT /F1 11 Tf 56 321.5 Td (  data, regularisation, or a smaller model.) Tj ET
+BT /F1 11 Tf 56 307.0 Td (- Vanishing / exploding gradients: caused by repeated multiplication of small) Tj ET
+BT /F1 11 Tf 56 292.5 Td (  or large Jacobians. Mitigate with ReLU, residual connections, or gradient) Tj ET
+BT /F1 11 Tf 56 278.0 Td (  clipping.) Tj ET
+BT /F1 11 Tf 56 263.5 Td (- Data leakage: information from the validation set sneaks into training) Tj ET
+BT /F1 11 Tf 56 249.0 Td (  \(e.g. normalising before splitting\). Always split first.) Tj ET
+BT /F1 11 Tf 56 234.5 Td (- Imbalanced classes: accuracy is misleading when one class dominates. Use) Tj ET
+BT /F1 11 Tf 56 220.0 Td (  precision, recall, F1, or resample.) Tj ET
+BT /F1 11 Tf 56 205.5 Td (- Not shuffling: correlated batches bias the gradient estimate.) Tj ET
+BT /F1 11 Tf 56 191.0 Td () Tj ET
+BT /F1 11 Tf 56 176.5 Td (10. Key formulas) Tj ET
+BT /F1 11 Tf 56 162.0 Td () Tj ET
+BT /F1 11 Tf 56 147.5 Td (  forward:        a = f\(W x + b\)) Tj ET
+BT /F1 11 Tf 56 133.0 Td (  loss \(CE\):      L = -sum y * log\(y_hat\)) Tj ET
+BT /F1 11 Tf 56 118.5 Td (  update:         theta <- theta - lr * dL/dtheta) Tj ET
+BT /F1 11 Tf 56 104.0 Td (  chain rule:     dL/dx = \(dL/df\)\(df/dg\)...\(dh/dx\)) Tj ET
+BT /F1 11 Tf 56 89.5 Td (  ReLU:           f\(z\) = max\(0, z\)) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 10 0 R /Resources << /Font << /F1 11 0 R >> >> >>
+endobj
+10 0 obj
+<< /Length 691 >>
+stream
+BT /F1 11 Tf 56 742.0 Td (  softmax:        p_i = e^{z_i} / sum_j e^{z_j}) Tj ET
+BT /F1 11 Tf 56 727.5 Td () Tj ET
+BT /F1 11 Tf 56 713.0 Td (11. Study questions) Tj ET
+BT /F1 11 Tf 56 698.5 Td () Tj ET
+BT /F1 11 Tf 56 684.0 Td (1. Why does cross-entropy pair so well with softmax?) Tj ET
+BT /F1 11 Tf 56 669.5 Td (2. What exactly does the backward pass reuse from the forward pass?) Tj ET
+BT /F1 11 Tf 56 655.0 Td (3. Explain dying ReLU and two ways to mitigate it.) Tj ET
+BT /F1 11 Tf 56 640.5 Td (4. Contrast SGD, momentum, and Adam in one sentence each.) Tj ET
+BT /F1 11 Tf 56 626.0 Td (5. Why is splitting the data before normalisation important?) Tj ET
+BT /F1 11 Tf 56 611.5 Td () Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000260 00000 n 
+0000003647 00000 n 
+0000003774 00000 n 
+0000007104 00000 n 
+0000007231 00000 n 
+0000010859 00000 n 
+0000010987 00000 n 
+0000011730 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+11801
+%%EOF

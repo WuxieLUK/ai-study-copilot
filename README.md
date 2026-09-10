@@ -52,7 +52,7 @@ Supabase (Postgres + pgvector + Storage + Auth)
         → POST /process:
              download → extract text (pdf-parse / UTF-8)
                       → chunk (paragraph-aware, ~1400 chars, 150 overlap)
-                      → embed (text-embedding-3-small, 1536-d)
+                      → embed (local multilingual model, 384-d)
                       → upsert document_chunks (HNSW) → status ready
 
  Ask tutor / generate quiz
@@ -114,6 +114,8 @@ ai-study-copilot/
 │  │  └─ env/                 # client-safe vs server-only env access
 │  ├─ proxy.ts                # Next 16 auth guard (formerly middleware)
 ├─ supabase/migrations/       # 0001–0005 (apply with `supabase db push`)
+├─ samples/                   # ready-to-upload sample study materials
+├─ scripts/                   # sample-material generator + embedding self-check
 ├─ public/                    # static assets (favicon in src/app)
 └─ vitest.config.mts
 ```
@@ -163,6 +165,17 @@ npm run dev     # http://localhost:3000
 Sign up, upload a PDF (or `.md`/`.txt`), wait for the **Ready** badge, then try the tutor or generate a quiz. Failures show the reason and can be retried from the documents list.
 
 > **Without API keys the app still runs** — the landing page and auth screens render, and protected screens show a clear "not configured" state instead of crashing. Type-checking, linting and all unit tests pass with an empty `.env.local`.
+
+### 4. Try it with the bundled sample materials
+
+`samples/` contains ready-to-upload study material so you can exercise the whole loop in a minute:
+
+- `neural-networks-lecture-notes.md` — 11-section lecture notes (formulas + study questions)
+- `neural-networks-lecture-notes.pdf` — the same notes as a 4-page PDF (regenerate with `node scripts/make-sample-pdf.mjs`)
+- `linear-algebra-quick-reference.txt` — a shorter plain-text reference
+
+Upload one on `/documents`, wait for **Ready**, then ask the tutor about
+"backpropagation" or generate a quiz from it.
 
 ## 🔑 Environment Variables
 
@@ -222,4 +235,4 @@ Highlights: pure business logic (validation, chunking, quiz JSON parsing, determ
 
 ---
 
-**AI Study Copilot** — built with Next.js 16, Supabase, pgvector and OpenAI.
+**AI Study Copilot** — built with Next.js 16, Supabase (Postgres + pgvector), DeepSeek and transformers.js.
