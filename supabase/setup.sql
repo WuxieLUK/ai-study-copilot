@@ -72,7 +72,9 @@ create policy "Users can delete their own documents"
   );
 -- 0003: document chunks (pgvector) for retrieval
 -- Requires Supabase with the `vector` extension available (enabled by default
--- on hosted projects). Embedding dimension 1536 = text-embedding-3-small.
+-- on hosted projects). Embedding dimension 384 matches the default local model
+-- (Xenova/multilingual-e5-small). If you switch to a hosted embeddings API,
+-- change the dimension here AND in 0004 + AI_EMBEDDING_DIM.
 
 create extension if not exists vector;
 
@@ -82,7 +84,7 @@ create table public.document_chunks (
   chunk_index  integer not null check (chunk_index >= 0),
   content      text not null,
   token_count  integer not null default 0,
-  embedding    vector(1536) not null,
+  embedding    vector(384) not null,
   created_at   timestamptz not null default now(),
   unique (document_id, chunk_index)
 );
@@ -129,7 +131,7 @@ create policy "Users can delete chunks of their documents"
 -- caller automatically (users can only ever retrieve their own material).
 
 create or replace function public.match_documents (
-  query_embedding vector(1536),
+  query_embedding vector(384),
   match_count integer default 5
 ) returns table (
   document_id uuid,

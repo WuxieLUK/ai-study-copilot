@@ -3,7 +3,7 @@
 -- caller automatically (users can only ever retrieve their own material).
 
 create or replace function public.match_documents (
-  query_embedding vector(1536),
+  query_embedding vector(384),
   match_count integer default 5
 ) returns table (
   document_id uuid,

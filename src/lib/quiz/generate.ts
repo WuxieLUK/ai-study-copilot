@@ -1,10 +1,9 @@
 import "server-only";
 
-import OpenAI from "openai";
-
+import { chatModel, createChatClient } from "@/lib/ai/chat";
 import { getQuizSourceContext, getReadyDocuments } from "@/lib/db/queries";
 import { isSupabaseConfigured } from "@/lib/env/client";
-import { envServer, isOpenAIConfigured } from "@/lib/env/server";
+import { isChatConfigured } from "@/lib/env/server";
 import { parseGeneratedQuiz, QuizParseError } from "@/lib/quiz/parse";
 import { buildQuizGenerationPrompt } from "@/lib/quiz/prompts";
 import type { QuizDraft, QuizGenerationRequest } from "@/lib/quiz/types";
@@ -41,9 +40,9 @@ export async function generateQuiz(
   if (!isSupabaseConfigured) {
     throw new QuizNotConfiguredError("Supabase is not configured.");
   }
-  if (!isOpenAIConfigured) {
+  if (!isChatConfigured) {
     throw new QuizNotConfiguredError(
-      "OPENAI_API_KEY is not configured. Add it to your environment to generate quizzes.",
+      "No chat model is configured. Set AI_CHAT_API_KEY (and AI_CHAT_BASE_URL / AI_CHAT_MODEL) to generate quizzes.",
     );
   }
 
@@ -64,9 +63,9 @@ export async function generateQuiz(
   }
 
   const questionCount = clampCount(request.questionCount);
-  const client = new OpenAI({ apiKey: envServer.openaiApiKey });
+  const client = createChatClient();
   const completion = await client.chat.completions.create({
-    model: envServer.openaiChatModel,
+    model: chatModel,
     temperature: 0.7,
     response_format: { type: "json_object" },
     messages: [

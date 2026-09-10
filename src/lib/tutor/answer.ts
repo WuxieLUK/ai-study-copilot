@@ -1,10 +1,9 @@
 import "server-only";
 
-import OpenAI from "openai";
-
+import { chatModel, createChatClient } from "@/lib/ai/chat";
+import { embedQuery } from "@/lib/ai/embedding";
 import { isSupabaseConfigured } from "@/lib/env/client";
-import { envServer, isOpenAIConfigured } from "@/lib/env/server";
-import { embedTexts } from "@/lib/rag/embed";
+import { isChatConfigured } from "@/lib/env/server";
 import { searchChunks, type SearchChunk } from "@/lib/rag/search";
 import {
   formatContextBlock,
@@ -45,7 +44,7 @@ const NO_CONTEXT_ANSWER =
 
 /**
  * Grounded Q&A: embed the question → retrieve the user's chunks → ask the
- * chat model to answer strictly from those excerpts, returning citations.
+ * configured chat model to answer strictly from those excerpts, with citations.
  */
 export async function answerQuestion(
   question: string,
@@ -56,9 +55,9 @@ export async function answerQuestion(
       "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable the tutor.",
     );
   }
-  if (!isOpenAIConfigured) {
+  if (!isChatConfigured) {
     throw new TutorNotConfiguredError(
-      "OPENAI_API_KEY is not configured. Add it to your environment to enable the tutor.",
+      "No chat model is configured. Set AI_CHAT_API_KEY (and AI_CHAT_BASE_URL / AI_CHAT_MODEL) to enable the tutor.",
     );
   }
 
@@ -68,7 +67,7 @@ export async function answerQuestion(
   }
   const historyMessages = sanitizeHistory(history);
 
-  const [embedding] = await embedTexts([cleanQuestion]);
+  const embedding = await embedQuery(cleanQuestion);
   const sources = await searchChunks(embedding);
 
   if (sources.length === 0) {
@@ -76,11 +75,13 @@ export async function answerQuestion(
   }
 
   const context = formatContextBlock(sources);
-  const client = new OpenAI({ apiKey: envServer.openaiApiKey });
+  const client = createChatClient();
   const completion = await client.chat.completions.create({
-    model: envServer.openaiChatModel,
+    model: chatModel,
     temperature: 0.2,
-    max_tokens: 900,
+    // Reasoning-capable models (e.g. DeepSeek) spend part of the budget on
+    // hidden reasoning tokens, so leave generous headroom for the answer.
+    max_tokens: 1600,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       ...historyMessages.map((message) => ({
@@ -93,7 +94,6 @@ export async function answerQuestion(
       },
     ],
   });
-
   const answer = completion.choices[0]?.message?.content?.trim() ?? "";
   if (!answer) {
     throw new Error("The model returned an empty answer.");

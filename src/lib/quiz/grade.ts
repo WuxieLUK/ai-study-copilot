@@ -1,7 +1,7 @@
 import "server-only";
 
-import OpenAI from "openai";
-
+import { chatModel, createChatClient } from "@/lib/ai/chat";
+import { isChatConfigured } from "@/lib/env/server";
 import { aggregateWeakTopics } from "@/lib/quiz/aggregate";
 import { buildShortAnswerGradingPrompt } from "@/lib/quiz/prompts";
 import {
@@ -15,7 +15,6 @@ import type {
   QuizQuestion,
   QuizResult,
 } from "@/lib/quiz/types";
-import { envServer } from "@/lib/env/server";
 import { createClient } from "@/lib/supabase/server";
 
 export class QuizNotConfiguredError extends Error {
@@ -41,13 +40,20 @@ type GradeShortAnswerInput = {
 async function gradeShortAnswer(
   item: GradeShortAnswerInput,
 ): Promise<{ score: number; feedback: string }> {
-  const client = new OpenAI({ apiKey: envServer.openaiApiKey });
+  const client = createChatClient();
   const completion = await client.chat.completions.create({
-    model: envServer.openaiChatModel,
+    model: chatModel,
     temperature: 0,
     response_format: { type: "json_object" },
     messages: [
-      { role: "user", content: buildShortAnswerGradingPrompt(item.question, item.rubric, item.answer) },
+      {
+        role: "user",
+        content: buildShortAnswerGradingPrompt(
+          item.question,
+          item.rubric,
+          item.answer,
+        ),
+      },
     ],
   });
 
@@ -88,9 +94,9 @@ export async function gradeQuiz(
   userId: string,
   input: GradeQuizInput,
 ): Promise<QuizResult & { sessionId: string }> {
-  if (!envServer.openaiApiKey) {
+  if (!isChatConfigured) {
     throw new QuizNotConfiguredError(
-      "OPENAI_API_KEY is not configured. Add it to your environment to grade quizzes.",
+      "No chat model is configured. Set AI_CHAT_API_KEY (and AI_CHAT_BASE_URL / AI_CHAT_MODEL) to grade quizzes.",
     );
   }
 

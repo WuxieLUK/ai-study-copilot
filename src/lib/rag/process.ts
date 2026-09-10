@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { DocumentFileType } from "@/lib/db/types";
-import { EmbeddingNotConfiguredError, embedTexts } from "@/lib/rag/embed";
+import { EmbeddingError, embedPassages } from "@/lib/ai/embedding";
 import { chunkText } from "@/lib/rag/chunk";
 import { extractText } from "@/lib/rag/extract";
 import { createClient } from "@/lib/supabase/server";
@@ -65,7 +65,7 @@ export async function processDocument(
       return await fail("No indexable content found in this document.");
     }
 
-    const embeddings = await embedTexts(chunks);
+    const embeddings = await embedPassages(chunks);
 
     // Idempotent re-index: replace this document's chunks.
     const { error: deleteError } = await supabase
@@ -102,7 +102,7 @@ export async function processDocument(
 
     return { status: "ready", chunkCount: rows.length };
   } catch (err) {
-    if (err instanceof EmbeddingNotConfiguredError) {
+    if (err instanceof EmbeddingError) {
       return await fail(err.message);
     }
     const message =

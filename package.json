@@ -10,10 +10,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "lucide-react": "^1.43.0",
     "next": "16.3.4",
+    "onnxruntime-common": "^1.24.3",
     "openai": "^7.12.1",
     "pdf-parse": "^2.4.5",
     "react": "19.2.8",
