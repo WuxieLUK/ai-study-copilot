@@ -122,7 +122,14 @@ ai-study-copilot/
 
 ## 📸 Screenshots
 
-_To be added before publishing:_ capture the **landing page**, **dashboard**, **documents upload**, **tutor chat with cited sources**, and **quiz results** (local dev run with your own Supabase project and a chat API key), drop them into e.g. `docs/screenshots/*.png`, and reference them here.
+| | |
+|---|---|
+| ![Landing page](docs/screenshots/01-landing.png) | ![Dashboard](docs/screenshots/02-dashboard.png) |
+| ![Documents upload](docs/screenshots/03-documents.png) | ![Study insights](docs/screenshots/04-insights.png) |
+| ![AI tutor with cited sources](docs/screenshots/05-tutor.png) | ![Quiz generator](docs/screenshots/06-quiz.png) |
+
+_Screenshots captured from a live local run (demo account). Regenerate any time with
+`node scripts/screenshot.mjs` (requires a running `npm run dev`)._
 
 ## 🚀 Local Development
 
