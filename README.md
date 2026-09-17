@@ -224,6 +224,10 @@ Highlights: pure business logic (validation, chunking, quiz JSON parsing, determ
 3. Run migrations against your hosted Supabase project (CLI `supabase db push` or SQL editor).
 4. Whitelist your Vercel domain in Supabase Auth → URL configuration (redirect URLs).
 
+> ⚠️ **Read [`docs/DEPLOY_VERCEL.md`](docs/DEPLOY_VERCEL.md) first** — it covers
+> the embeddings-on-serverless trade-off (local model vs hosted API, incl.
+> vector-dimension changes), the exact env set, and troubleshooting.
+
 ## 🧭 Future improvements
 
 - Background job/queue for processing large documents (longer than a serverless function run)
