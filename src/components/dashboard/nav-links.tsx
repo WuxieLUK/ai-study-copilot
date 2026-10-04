@@ -7,6 +7,8 @@ const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/documents", label: "Documents" },
   { href: "/tutor", label: "Tutor" },
+  { href: "/flashcards", label: "Flashcards" },
+  { href: "/study-plan", label: "Study plan" },
   { href: "/quiz", label: "Quiz" },
   { href: "/insights", label: "Insights" },
 ];

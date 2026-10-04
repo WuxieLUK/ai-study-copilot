@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s · AI Study Copilot",
   },
   description:
-    "Upload your course materials and get AI summaries, adaptive quizzes, and a personal AI tutor that answers from your own notes.",
+    "AI Study Copilot builds a private knowledge base from your notes, PDFs and slides. Get summaries, quizzes, flashcards, a daily study plan, and a tutor that answers with citations — all grounded in your own materials.",
 };
 
 /*

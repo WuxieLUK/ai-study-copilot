@@ -3,6 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   BarChart3,
+  Layers3,
+  CalendarRange,
   ListChecks,
   MessagesSquare,
   UploadCloud,
@@ -12,6 +14,7 @@ import { DocumentsPanel } from "@/components/dashboard/documents-panel";
 import { ProgressPanel } from "@/components/dashboard/progress-panel";
 import { QuizPanel } from "@/components/dashboard/quiz-panel";
 import { RecommendationsPanel } from "@/components/dashboard/recommendations-panel";
+import { FocusPanel } from "@/components/dashboard/focus-panel";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   getDashboardSnapshot,
@@ -67,6 +70,7 @@ export default async function DashboardPage() {
             failedDocuments={snapshot.failedDocuments}
             totalDocuments={snapshot.totalDocuments}
           />
+          <FocusPanel />
           <QuizPanel sessions={quizSessions.slice(0, 5)} />
         </div>
       </div>
@@ -77,6 +81,8 @@ export default async function DashboardPage() {
 const QUICK_LINKS = [
   { href: "/documents", label: "Upload materials", icon: UploadCloud },
   { href: "/tutor", label: "Ask the tutor", icon: MessagesSquare },
+  { href: "/flashcards", label: "Flashcards", icon: Layers3 },
+  { href: "/study-plan", label: "Study plan", icon: CalendarRange },
   { href: "/quiz", label: "Take a quiz", icon: ListChecks },
   { href: "/insights", label: "View insights", icon: BarChart3 },
 ];

@@ -75,3 +75,97 @@ body {
 ::selection {
   background: color-mix(in srgb, var(--ring) 25%, transparent);
 }
+
+/* ---------- Motion design system ---------- */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes aurora {
+  0%, 100% { transform: translate(-8%, -4%) rotate(-4deg) scale(1); }
+  33% { transform: translate(6%, 5%) rotate(3deg) scale(1.08); }
+  66% { transform: translate(-3%, 8%) rotate(-2deg) scale(0.96); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.animate-fade-up { animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-fade-in { animation: fade-in 0.8s ease both; }
+.animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
+.animate-aurora { animation: aurora 18s ease-in-out infinite; }
+.animate-marquee { animation: marquee 32s linear infinite; }
+
+.text-gradient {
+  background-image: linear-gradient(110deg, var(--color-brand-500), #8b5cf6 45%, #06b6d4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.shimmer-text {
+  background: linear-gradient(110deg, var(--color-brand-400), #c4b5fd 40%, var(--color-brand-400) 60%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 55%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 72%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 72%);
+}
+
+.glass {
+  background: color-mix(in srgb, var(--background) 68%, transparent);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--color-brand-400) 45%, var(--color-border));
+  box-shadow: 0 24px 48px -24px color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+}
+
+.ring-glow {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-brand-400) 25%, transparent),
+    0 20px 70px -24px color-mix(in srgb, var(--color-brand-500) 55%, transparent);
+}

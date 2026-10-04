@@ -5,6 +5,8 @@ import {
   CircleHelp,
   TrendingUp,
   Target,
+  Layers3,
+  CalendarRange,
 } from "lucide-react";
 
 const FEATURES = [
@@ -44,6 +46,18 @@ const FEATURES = [
     description:
       "Documents processed, quizzes taken, accuracy over time — one place to see your learning trajectory.",
   },
+  {
+    icon: Layers3,
+    title: "Spaced-repetition flashcards",
+    description:
+      "Generate active-recall decks from any chapter and practice with flip cards, keyboard shortcuts and mastery tracking.",
+  },
+  {
+    icon: CalendarRange,
+    title: "Coach-designed study plans",
+    description:
+      "Weak topics and your own notes become a realistic day-by-day plan: read, recall, practice, teach, review.",
+  },
 ];
 
 export function Features() {
@@ -62,7 +76,7 @@ export function Features() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((feature) => (
             <div
               key={feature.title}
