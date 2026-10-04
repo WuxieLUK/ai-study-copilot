@@ -58,9 +58,52 @@ const password = process.env.PASSWORD || "DemoPass123!";
 
 const log = (...args) => console.log("[shots]", ...args);
 
+/** Captures the public marketing and /demo surfaces (no Supabase needed). */
+async function publicOnlyShots() {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 900 },
+    deviceScaleFactor: 2,
+  });
+
+  await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: path.join(outDir, "01-landing.png"), fullPage: true });
+
+  await page.goto(`${baseUrl}/demo`, { waitUntil: "networkidle" });
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: path.join(outDir, "09-demo.png") });
+
+  const panels = ["Tutor", "Flashcards", "Study plan", "Quiz"];
+  const files = ["05-tutor.png", "07-flashcards.png", "08-study-plan.png", "06-quiz.png"];
+  for (let i = 0; i < panels.length; i += 1) {
+    await page.getByRole("button", { name: panels[i] }).click();
+    if (panels[i] === "Tutor") {
+      await page.getByRole("button", { name: "What is backpropagation?" }).click();
+      await page.waitForTimeout(900);
+    }
+    if (panels[i] === "Quiz") {
+      await page.waitForTimeout(200);
+      const option = page.locator("div.rounded-3xl button").filter({ hasText: "How to adjust weights to reduce loss" }).first();
+      await option.click().catch(() => {});
+      await page.waitForTimeout(300);
+    }
+    await page.locator("div.rounded-3xl").first().screenshot({ path: path.join(outDir, files[i]) });
+  }
+
+  await browser.close();
+  log("DONE (public pages only)");
+}
+
 async function main() {
   fs.mkdirSync(outDir, { recursive: true });
   log("base:", baseUrl, "out:", outDir);
+
+  if (!supabaseUrl || !anonKey) {
+    log("Supabase not configured — capturing public pages only.");
+    await publicOnlyShots();
+    return;
+  }
 
   // Sign in and encode the session as cookies (mirrors @supabase/ssr).
   const signInRes = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
@@ -70,8 +113,9 @@ async function main() {
   });
   const session = await signInRes.json();
   if (!signInRes.ok || !session.access_token) {
-    console.error("[shots] sign-in failed:", signInRes.status, JSON.stringify(session).slice(0, 200));
-    process.exit(1);
+    console.error("[shots] sign-in failed, falling back to public pages:", signInRes.status);
+    await publicOnlyShots();
+    return;
   }
   const cookies = sessionCookie(session, supabaseUrl).split("; ").map((pair) => {
     const sep = pair.indexOf("=");

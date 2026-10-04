@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
+  ArrowRight,
   BookOpen,
   Brain,
   Check,
@@ -130,6 +132,16 @@ export function Demo() {
               <Panel key={activeId} id={activeId} />
             </div>
           </div>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/demo"
+            className="group inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted"
+          >
+            Open the full interactive demo
+            <ArrowRight className="h-4 w-4 text-brand-500 transition-transform group-hover:translate-x-0.5" aria-hidden />
+          </Link>
         </div>
       </div>
     </section>

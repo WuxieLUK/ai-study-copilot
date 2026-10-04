@@ -78,11 +78,24 @@ hosted OpenAI-compatible embeddings API instead.
 
 ## Screenshots
 
-| Landing | Dashboard | Documents | Tutor | Flashcards | Study plan | Quiz | Insights |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| ![01](docs/screenshots/01-landing.png) | ![02](docs/screenshots/02-dashboard.png) | ![03](docs/screenshots/03-documents.png) | ![04](docs/screenshots/05-tutor.png) | *(coming)* | *(coming)* | ![06](docs/screenshots/06-quiz.png) | ![04](docs/screenshots/04-insights.png) |
+**Landing**
 
-> Run `node scripts/screenshot.mjs` with a running dev server to update them.
+![Landing](docs/screenshots/01-landing.png)
+
+**Core study loop** — from the live interactive demo at `/demo`
+
+| Tutor | Flashcards | Study plan | Quiz |
+|:---:|:---:|:---:|:---:|
+| ![Tutor](docs/screenshots/05-tutor.png) | ![Flashcards](docs/screenshots/07-flashcards.png) | ![Study plan](docs/screenshots/08-study-plan.png) | ![Quiz](docs/screenshots/06-quiz.png) |
+
+**Workspace** — requires a Supabase project
+
+| Dashboard | Documents | Insights |
+|:---:|:---:|:---:|
+| ![Dashboard](docs/screenshots/02-dashboard.png) | ![Documents](docs/screenshots/03-documents.png) | ![Insights](docs/screenshots/04-insights.png) |
+
+> Marketing screenshots update via `node scripts/screenshot.mjs`; the `/demo`
+> panels are captured with Playwright (see `scripts/` for the helpers).
 
 ## Scripts
 
