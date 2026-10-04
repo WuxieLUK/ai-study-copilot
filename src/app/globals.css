@@ -108,6 +108,15 @@ body {
   to { transform: translateX(-50%); }
 }
 
+@keyframes flip-y {
+  0%, 42% { transform: rotateY(0deg); }
+  58%, 100% { transform: rotateY(180deg); }
+}
+
+@keyframes progress-grow {
+  from { width: 0%; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -122,6 +131,7 @@ body {
 .animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
 .animate-aurora { animation: aurora 18s ease-in-out infinite; }
 .animate-marquee { animation: marquee 32s linear infinite; }
+.animate-flip-y { animation: flip-y 6s ease-in-out infinite; }
 
 .text-gradient {
   background-image: linear-gradient(110deg, var(--color-brand-500), #8b5cf6 45%, #06b6d4);
